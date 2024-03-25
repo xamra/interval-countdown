@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Countdowns</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles2.css">
+</head>
+
+<body>
+    <div class="container" x-data="multipleCountdowns" x-init="setInit">
+        <div class="row align-items-center">
+            <div class="col">
+
+                <h1 class="mt-5 mb-3">Multiple Countdowns</h1>
+                <div id="timerelement">
+                    <div class="row align-items-center">
+                        <div class="col">
+
+                            <select id="hour" name="hour" class="select form-select">
+                                <template x-for="time in timeList">
+                                    <option x-text="time" x-bind:value="time"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <div class="col">
+                            <select id="min" name="min" class="select form-select">
+                                <template x-for="time in timeList">
+                                    <option x-text="time" x-bind:value="time"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <div class="col">
+                            <select id="sec" name="sec" class="select form-select">
+                                <template x-for="time in timeList">
+                                    <option x-text="time" x-bind:value="time"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <div class="col">
+                            <button id="add" class="btn btn-primary w-100" x-on:click="addTimer" title="Add timer"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Add timer"><i
+                                    class="bi bi-plus-lg"></i></button>
+                        </div>
+                    </div>
+                    <hr class="border border-primary">
+                </div>
+            </div>
+
+        </div>
+        <div class="row align-items-center">
+            <div class="col">
+                <div id="timers" class="pt-2" x-show="countdownObjects.length > 0" x-cloak>
+
+                    <template x-for="(timer, index) in countdownObjects" :key="timer.id">
+                        <div class="row mb-3 align-items-center" x-bind:data-id="timer.id">
+                            <div class="col" x-bind:style="timer.done && { color: 'red' }">
+                                <span class="countdownvalue fs-1" x-text="timer.clockValue"></span>
+                            </div>
+                            <div class="col text-end">
+                                <div class="btn-" role="group" aria-label="Small button group">
+
+                                    <button class="btn btn-primary"
+                                        x-show="!timer.started && !timer.startButtonDisabled"
+                                        x-on:click="startTimer(timer.id)" x-bind:disabled="timer.startButtonDisabled"
+                                        title="Start timer" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-title="Start timer"><i class="bi bi-play"></i></button>
+                                    <button class="btn btn-primary" x-show="timer.started"
+                                        x-on:click="pauseTimer(timer.id)" x-bind:disabled="timer.pauseButtonDisabled"
+                                        title="Pause timer" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-title="Stop timer"><i class="bi bi-pause"></i></button>
+                                    <button class="btn btn-primary" x-show="timer.done"
+                                        x-on:click="resetTimer(timer.id)" x-bind:disabled="timer.resetButtonDisabled"
+                                        title="Reset timer" data-bs-toggle="tooltip" data-bs-placement="top"
+                                        data-bs-title="Reset timer"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                    <button class="btn btn-primary" x-on:click="deleteTimer(timer.id)"
+                                        x-bind:disabled="timer.deleteButtonDisabled" title="Delete timer"
+                                        data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete timer"><i
+                                            class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </template>
+
+
+
+                    <hr class="border border-primary">
+
+                    <div id="timerbar" x-show="countdownObjects.length > 0">
+                        <div class="btn-" role="group" aria-label="Small button group">
+                            <button role="button" class="btn btn-success" id="starttogether" name="starttogether"
+                                title="Start all at once" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="Start all at once" x-on:click="startAllTogether"><i
+                                    class="bi bi-play"></i></button>
+                            <button role="button" class="btn btn-primary" id="startinsequence" name="startinsequence"
+                                title="Start all in sequence" data-bs-toggle="tooltip" data-bs-placement="top"
+                                data-bs-title="Start all in sequence" x-on:click="startAllInSequence(0)"><i
+                                    class="bi bi-play-fill"></i></button>
+                            <button role="button" class="btn btn-primary" id="stop" name="stop" title="Stop all"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Stop all"
+                                x-on:click="stopAll"><i class="bi bi-stop"></i></button>
+                            <button role="button" class="btn btn-primary" id="reset" name="reset" title="Reset all"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reset all"
+                                x-on:click="resetAll"><i class="bi bi-arrow-counterclockwise"></i></button>
+                            <button role="button" class="btn btn-danger" id="delete" name="delete" title="Delete all"
+                                data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete all"
+                                x-on:click="deleteAll" x-bind:disabled="startedAllButtonDisabled"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+            crossorigin="anonymous"></script>
+
+
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+        <script src="app2.js"></script>
+</body>
+
+</html>
