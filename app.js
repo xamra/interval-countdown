@@ -208,7 +208,7 @@ function multipleCountdowns() {
                 console.log("prevented second start " + this.countdownObjects[index].id)
                 return;
             }
-
+            this.startSound.play();
             this.countdownObjects[timerIndex].startButtonDisabled = true;
             this.countdownObjects[timerIndex].pauseButtonDisabled = false;
             this.countdownObjects[timerIndex].resetButtonDisabled = true;
