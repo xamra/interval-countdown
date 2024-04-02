@@ -5,6 +5,13 @@ function multipleCountdowns() {
         timeList: [],
         countdownObjects: [],
         startedAllButtonDisabled: false,
+        clickSound: {},
+        deleteSound: {},
+        startSound: {},
+        stopSound: {},
+        pauseSound: {},
+        resetSound: {},
+        timerEndSound: {},
         setInit() {
             let i = 0;
             let val = "";
@@ -17,6 +24,14 @@ function multipleCountdowns() {
                 this.timeList.push(val);
                 i += this.timerInterval;
             }
+            this.clickSound = new sound("mixkit-message-pop-alert-2354 (mp3cut.net).mp3");
+            //  this.deleteSound = new sound("mixkit-page-turn-chime-1106 (mp3cut.net).wav");
+            this.deleteSound = new sound("mixkit-negative-tone-interface-tap-2569 (mp3cut.net).wav");
+            this.startSound = new sound("mixkit-modern-technology-select-3124 (mp3cut.net).wav");
+            this.resetSound = new sound("mixkit-select-click-1109 (mp3cut.net).wav");
+            this.timerEndSound = new sound("mixkit-censorship-beep-long-1083 (mp3cut.net).wav");
+            this.pauseSound = new sound("mixkit-select-click-1109 (mp3cut.net)_pitched.wav");
+            this.stopSound = new sound("mixkit-quest-game-interface-click-1139 (mp3cut.net).wav");
         },
 
         addTimer() {
@@ -42,6 +57,7 @@ function multipleCountdowns() {
                 timerObject.deleteButtonDisabled = false;
                 this.countdownObjects.push(timerObject);
             }
+            this.clickSound.play();
         },
 
         startTimer(timerID) {
@@ -55,6 +71,8 @@ function multipleCountdowns() {
                 console.log("prevented second start " + this.countdownObjects[index].id)
                 return;
             }
+
+            this.startSound.play();
 
             this.countdownObjects[timerIndex].startButtonDisabled = true;
             this.countdownObjects[timerIndex].pauseButtonDisabled = false;
@@ -75,6 +93,7 @@ function multipleCountdowns() {
 
                 this.countdownObjects[timerIndex].clockValue = to.hour + ":" + to.min + ":" + to.sec;
                 if (seconds == 0) {
+                    this.timerEndSound.play();
                     ClearInterval(intervalID);
                     // this.resetTimer(e) // vielleicht feature einbauen ? --> autoreset checkbox
 
@@ -102,6 +121,7 @@ function multipleCountdowns() {
             this.countdownObjects[timerIndex].started = false;
             this.countdownObjects[timerIndex].done = false;
             ClearInterval(this.countdownObjects[timerIndex].countdownTimerID);
+            this.pauseSound.play();
         },
 
         resetTimer(timerID) {
@@ -115,6 +135,7 @@ function multipleCountdowns() {
             this.countdownObjects[timerIndex].done = false;
             this.countdownObjects[timerIndex].values = this.countdownObjects[timerIndex].initValues;
             this.countdownObjects[timerIndex].clockValue = (this.countdownObjects[timerIndex].initValues).join(":");
+            this.resetSound.play();
         },
 
         deleteTimer(timerID) {
@@ -123,6 +144,7 @@ function multipleCountdowns() {
             });
             ClearInterval(this.countdownObjects[timerIndex].countdownTimerID);
             this.countdownObjects.splice(timerIndex, 1);
+            this.deleteSound.play();
         },
 
 
@@ -136,6 +158,7 @@ function multipleCountdowns() {
                     return;
 
                 }
+                this.startSound.play();
                 timerElement.startButtonDisabled = true;
                 timerElement.pauseButtonDisabled = false;
                 timerElement.resetButtonDisabled = true;
@@ -154,6 +177,7 @@ function multipleCountdowns() {
                     let to = secondsToTime(seconds);
                     this.countdownObjects[timerIndex].clockValue = to.hour + ":" + to.min + ":" + to.sec;
                     if (seconds == 0) {
+                        this.timerEndSound.play();
                         ClearInterval(intervalID);
                         // this.resetTimer(e) // vielleicht feature einbauen ? --> autoreset checkbox
 
@@ -179,8 +203,8 @@ function multipleCountdowns() {
             let ind = 0;
             let timerID = this.countdownObjects[timerIndex].id;
 
-            if ((this.countdownObjects[timerIndex].started == true && this.countdownObjects[timerIndex].countdownTimerID != undefined) 
-            || this.countdownObjects[timerIndex].clockValue == "00:00:00") {
+            if ((this.countdownObjects[timerIndex].started == true && this.countdownObjects[timerIndex].countdownTimerID != undefined)
+                || this.countdownObjects[timerIndex].clockValue == "00:00:00") {
                 console.log("prevented second start " + this.countdownObjects[index].id)
                 return;
             }
@@ -209,6 +233,7 @@ function multipleCountdowns() {
                 }
 
                 if (seconds == 0) {
+                    this.timerEndSound.play();
                     ClearInterval(intervalID);
                     // this.resetTimer(e) // vielleicht feature einbauen ? --> autoreset checkbox
 
@@ -242,6 +267,7 @@ function multipleCountdowns() {
                 element.countdownTimerID = null;
             });
             startedAllButtonDisabled = false;
+            this.stopSound.play();
         },
 
         resetAll() {
@@ -258,6 +284,7 @@ function multipleCountdowns() {
                 element.done = false;
             });
             startedAllButtonDisabled = false;
+            this.resetSound.play();
         },
 
         deleteAll() {
@@ -265,6 +292,7 @@ function multipleCountdowns() {
                 ClearInterval(element.countdownTimerID);
             });
             this.countdownObjects = [];
+            this.deleteSound.play();
         }
     }
 }
@@ -339,3 +367,20 @@ function calculateTime(num, formatFrom, formatTo) {
 
 // 00:30 -> 30 sec
 // 01:45 -> 105 sec oder 1,75 Min
+
+
+function sound(src) {
+    this.sound = document.createElement("audio");
+    this.sound.src = src;
+    this.sound.setAttribute("preload", "auto");
+    this.sound.setAttribute("controls", "none");
+    this.sound.style.display = "none";
+    document.body.appendChild(this.sound);
+    this.play = function () {
+        this.sound.play();
+    }
+    this.stop = function () {
+        this.sound.pause();
+        this.sound.currentTime = 0;
+    }
+}
